@@ -1,0 +1,13 @@
+@prefix this: <https://some-base-uri/>.
+@prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+
+this:myConceptScheme a skos:ConceptScheme.
+
+this:myFirstConcept 
+    a skos:Concept;
+    skos:inScheme this:myConceptScheme.
+
+this:mySecondConcept
+    a skos:Concept;
+    skos:inScheme this:myConceptScheme;
+    skos:broader this:myFirstConcept.

@@ -1,0 +1,23 @@
+[
+  {
+    "file": "{resources_dir}/test.csv-metadata.json",
+    "opType": "CSV2RDF",
+    "arguments": [
+      "{tmp_dir}/test.out.ttl"
+    ]
+  },
+  {
+    "file": "{tmp_dir}/test.out.ttl",
+    "opType": "SPARQL Update",
+    "arguments": [
+      "{resources_dir}/sparql/add-skos-narrower.sparql"
+    ]
+  },
+  {
+    "file": "{tmp_dir}/test.out.ttl",
+    "opType": "SPARQL Update",
+    "arguments": [
+      "{resources_dir}/sparql/add-skos-top-concept.sparql"
+    ]
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "@context": "http://www.w3.org/ns/csvw",
+  "@id": "#some-id",
+  "url": "test.csv",
+  "tableSchema": {
+    "columns": [
+      {
+        "titles": "Label",
+        "name": "label",
+        "datatype": "string",
+        "required": true,
+        "propertyUrl": "rdfs:label"
+      }
+    ]
+  }
+}

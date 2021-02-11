@@ -1,0 +1,17 @@
+INSERT {
+    ?conceptScheme <http://www.w3.org/2004/02/skos/core#hasTopConcept> ?concept.
+}
+WHERE {
+    ?conceptScheme <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#ConceptScheme>.
+
+    ?concept <http://www.w3.org/2004/02/skos/core#inScheme> ?conceptScheme.
+
+        FILTER NOT EXISTS {
+            # Find concepts which don't have anything broader, they are by definition topConcepts.
+            ?concept <http://www.w3.org/2004/02/skos/core#broader> ?broaderConcept.
+        }
+        FILTER NOT EXISTS {
+            # Ensure we don't add topConcept where it is already set.
+            ?conceptScheme <http://www.w3.org/2004/02/skos/core#hasTopConcept> ?concept.
+        }
+}

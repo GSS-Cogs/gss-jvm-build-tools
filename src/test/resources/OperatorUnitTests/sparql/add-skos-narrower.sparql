@@ -1,0 +1,13 @@
+INSERT {
+    ?broaderConcept <http://www.w3.org/2004/02/skos/core#narrower> ?concept.
+}
+WHERE {
+    ?conceptScheme
+        <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2004/02/skos/core#ConceptScheme>.
+    ?concept
+        <http://www.w3.org/2004/02/skos/core#inScheme> ?conceptScheme;
+        <http://www.w3.org/2004/02/skos/core#broader> ?broaderConcept.
+        FILTER NOT EXISTS {
+            ?broaderConcept <http://www.w3.org/2004/02/skos/core#narrower> ?concept.
+        }
+}

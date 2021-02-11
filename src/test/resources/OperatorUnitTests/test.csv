@@ -1,0 +1,5 @@
+Label,Notation,Parent Notation,Sort Priority
+All,all,,0
+Current Account,current-account,all,1
+Capital Account,capital-account,all,2
+Financial account,financial-account,all,3
