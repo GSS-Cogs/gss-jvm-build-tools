@@ -29,10 +29,4 @@ libraryDependencies += "org.eclipse.rdf4j" % "rdf4j-rio-turtle" % "3.5.1"
 libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.12.1"
 
-
-
-// https://stackoverflow.com/a/48173709
-assemblyMergeStrategy in assembly := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case x => MergeStrategy.first
-}
+enablePlugins(JavaAppPackaging)

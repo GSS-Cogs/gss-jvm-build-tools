@@ -33,7 +33,7 @@ object Operator {
 
   private def performOperationsForFile(filePath: String, operations: Seq[FileOperation], verbose: Boolean): Unit = {
     if (verbose) {
-      print(s"Operating on ${filePath}")
+      println(s"Operating on ${filePath}")
     }
 
     val file = new File(filePath)
@@ -72,7 +72,7 @@ object Operator {
 
   private def notifyOpStartedIfVerbose(verbose: Boolean, op: FileOperation) = {
     if (verbose) {
-      print(s"Performing ${op.getOpType()} operation with arguments ${op.getArguments().mkString(", ")}")
+      println(s"Performing ${op.getOpType()} operation with arguments ${op.getArguments().mkString(", ")}")
     }
   }
 
