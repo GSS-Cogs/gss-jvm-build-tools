@@ -63,12 +63,13 @@ object RdfRepo {
 
 
   def writeToOutputFile(repo: AbstractRepository,
-                        outputFile: File,
-                        outputFormat: RDFFormat = RDFFormat.TURTLE): Unit = {
+                        outputFile: File): Unit = {
     val conn = repo.getConnection
     try {
       val outputStream = new FileOutputStream(outputFile)
       try {
+        val outputFormat = Rio.getParserFormatForFileName(outputFile.getName)
+          .orElse(RDFFormat.RDFXML)
         val writer = Rio.createWriter(outputFormat, outputStream)
         conn.`export`(writer)
       } finally {
