@@ -1,8 +1,9 @@
 package uk.gsscogs.build
 
+import org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriter
 import org.eclipse.rdf4j.repository.base.AbstractRepository
 
-import java.io.{File, FileOutputStream}
+import java.io.{File, FileOutputStream, OutputStream}
 import org.eclipse.rdf4j.repository.sail.SailRepository
 import org.eclipse.rdf4j.sail.memory.MemoryStore
 import org.eclipse.rdf4j.rio.RDFFormat
@@ -48,6 +49,18 @@ object RdfRepo {
       conn.close()
     }
   }
+
+  def queryToJson(repo: AbstractRepository, query: String, jsonOutputStream: OutputStream): Unit = {
+    val conn = repo.getConnection
+    try {
+      conn
+        .prepareTupleQuery(query)
+        .evaluate(new SPARQLResultsJSONWriter(jsonOutputStream))
+    } finally {
+      conn.close()
+    }
+  }
+
 
   def writeToOutputFile(repo: AbstractRepository,
                         outputFile: File,

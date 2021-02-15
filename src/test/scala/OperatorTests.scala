@@ -1,7 +1,8 @@
 package uk.gsscogs.build
 
 import com.fasterxml.jackson.core.`type`.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.fasterxml.jackson.databind.node.ObjectNode
 import org.scalatest.FunSuite
 
 import java.nio.file.{Files, Paths}
@@ -10,7 +11,7 @@ import scala.io.Source
 class OperatorTests extends FunSuite {
   val tempDir = Files.createTempDirectory("operator-unit-tests").toFile
 
-  test("Test basic conversion") {
+  test("Test conversion with CSV2RDF, SPARQL Update & SPARQL Query") {
     val testResourcesDir = getClass.getResource("/OperatorUnitTests")
 
     val configFile = Paths.get(testResourcesDir.getPath, "config.json").toFile
@@ -45,6 +46,25 @@ class OperatorTests extends FunSuite {
         |""".stripMargin)
 
     assert(rdfHasBeenCreatedAndAugmented)
+
+    val outputGraphNameJsonFile = Paths.get(tempDir.getPath, "test.graph.name.json").toFile
+
+    val jsonResult = new ObjectMapper().readTree(outputGraphNameJsonFile)
+    val bindingsArray = jsonResult
+        .get("results")
+        .get("bindings")
+        .elements()
+
+    assert(bindingsArray.hasNext)
+
+    val graphUri = bindingsArray.next()
+      .get("graph")
+      .get("value")
+      .textValue()
+
+    assert(!bindingsArray.hasNext)
+
+    assert(graphUri == "http://some-uri/#scheme/stuff")
   }
 
 }

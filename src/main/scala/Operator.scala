@@ -2,7 +2,7 @@ package uk.gsscogs.build
 
 import org.eclipse.rdf4j.repository.base.AbstractRepository
 
-import java.io.File
+import java.io.{File, FileOutputStream}
 import scala.io.Source
 
 object Operator {
@@ -50,12 +50,17 @@ object Operator {
           case (Operation.OpTypes.SPARQL_UPDATE, _) =>
             throw new IllegalArgumentException(
               s"Repository must be provided where ${Operation.OpTypes.SPARQL_UPDATE} operations exist.")
+          case (Operation.OpTypes.SPARQL_QUERY, Some(repo)) => validateAndPerformSparqlQueryOp(op, repo)
+          case (Operation.OpTypes.SPARQL_QUERY, _) =>
+            throw new IllegalArgumentException(
+              s"Repository must be provided where ${Operation.OpTypes.SPARQL_QUERY} operations exist.")
+
           case _ => throw new IllegalArgumentException(s"Unmatched opType ${op.getOpType()}")
         }
       }
     }
 
-    if (operations.exists(op => op.getOpType() == Operation.OpTypes.SPARQL_UPDATE)) {
+    if (operations.exists(op => op.getOpType() == Operation.OpTypes.SPARQL_UPDATE || op.getOpType() == Operation.OpTypes.SPARQL_QUERY)) {
       // Keep repo in-memory until all SPARQL update ops completed.
       val repo = RdfRepo.getRepoForFile(file)
       try {
@@ -76,13 +81,33 @@ object Operator {
     }
   }
 
-  private def validateAndPerformSparqlUpdateOp(operation: FileOperation, repo: AbstractRepository) = {
-    validateNumArgsForOp(operation, Operation.OpTypes.SPARQL_UPDATE, 1)
-    val sparqlQueryFile = new File(operation.getArguments().apply(0))
-    if (!sparqlQueryFile.exists()){
+  private def validateAndPerformSparqlQueryOp(operation: FileOperation, repo: AbstractRepository) = {
+    validateNumArgsForOp(operation, Operation.OpTypes.SPARQL_QUERY, 2)
+    val args = operation.getArguments()
+
+    val sparqlQuery: String = getSparqlQueryFromFile(operation.getArguments().apply(0))
+    val outputJsonFile = new File(args.apply(1))
+
+    val fileOutJsonStream = new FileOutputStream(outputJsonFile)
+    try {
+      RdfRepo.queryToJson(repo, sparqlQuery, fileOutJsonStream)
+    } finally {
+      fileOutJsonStream.close()
+    }
+  }
+
+  private def getSparqlQueryFromFile(sparqlQueryFilePath: String) = {
+    val sparqlQueryFile = new File(sparqlQueryFilePath)
+    if (!sparqlQueryFile.exists()) {
       throw new IllegalArgumentException(s"SPARQL Query file '${sparqlQueryFile.getPath}' does not exist.")
     }
     val sparqlQuery = Source.fromFile(sparqlQueryFile).getLines.mkString("\n")
+    sparqlQuery
+  }
+
+  private def validateAndPerformSparqlUpdateOp(operation: FileOperation, repo: AbstractRepository) = {
+    validateNumArgsForOp(operation, Operation.OpTypes.SPARQL_UPDATE, 1)
+    val sparqlQuery: String = getSparqlQueryFromFile(operation.getArguments().apply(0))
 
     RdfRepo.updateOrInsertOrDelete(repo, sparqlQuery)
   }

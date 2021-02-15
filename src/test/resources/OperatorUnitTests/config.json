@@ -19,5 +19,13 @@
     "arguments": [
       "{resources_dir}/sparql/add-skos-top-concept.sparql"
     ]
+  },
+  {
+    "file": "{tmp_dir}/test.out.ttl",
+    "opType": "SPARQL Query",
+    "arguments": [
+      "{resources_dir}/sparql/get-concept-scheme-graph-uri.sparql",
+      "{tmp_dir}/test.graph.name.json"
+    ]
   }
 ]
