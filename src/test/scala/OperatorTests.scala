@@ -1,8 +1,7 @@
 package uk.gsscogs.build
 
 import com.fasterxml.jackson.core.`type`.TypeReference
-import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
-import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.scalatest.FunSuite
 
 import java.nio.file.{Files, Paths}
@@ -11,7 +10,7 @@ import scala.io.Source
 class OperatorTests extends FunSuite {
   val tempDir = Files.createTempDirectory("operator-unit-tests").toFile
 
-  test("Test conversion with CSV2RDF, SPARQL Update & SPARQL Query") {
+  test("Test conversion with CSV2RDF, SPARQL Update, SPARQL Query & SPARQL to Quads") {
     val testResourcesDir = getClass.getResource("/OperatorUnitTests")
 
     val configFile = Paths.get(testResourcesDir.getPath, "config.json").toFile
@@ -65,6 +64,26 @@ class OperatorTests extends FunSuite {
     assert(!bindingsArray.hasNext)
 
     assert(graphUri == "http://some-uri/#scheme/stuff")
+
+    val quadsOutput = Paths.get(tempDir.getPath, "test.out.nq").toFile
+    val quadsRepo = RdfRepo.getRepoForFile(quadsOutput)
+    try {
+      val triplesExistWithoutCorrectGraphName = RdfRepo.ask(quadsRepo,
+        """
+          |ASK
+          |WHERE {
+          | ?s ?p ?o
+          | FILTER NOT EXISTS {
+          |   GRAPH <http://some-uri/#scheme/stuff> {
+          |     ?s ?p ?o.
+          |   }
+          | }
+          |}
+          |""".stripMargin)
+      assert(!triplesExistWithoutCorrectGraphName)
+    } finally {
+      RdfRepo.disposeOfRepo(quadsRepo)
+    }
   }
 
 }

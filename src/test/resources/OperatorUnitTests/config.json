@@ -27,5 +27,13 @@
       "{resources_dir}/sparql/get-concept-scheme-graph-uri.sparql",
       "{tmp_dir}/test.graph.name.json"
     ]
+  },
+  {
+    "file": "{tmp_dir}/test.out.ttl",
+    "opType": "SPARQL to Quads",
+    "arguments": [
+      "{resources_dir}/sparql/get-concept-scheme-graph-uri.sparql",
+      "{tmp_dir}/test.out.nq"
+    ]
   }
 ]

@@ -3,6 +3,7 @@ package uk.gsscogs.build
 import org.eclipse.rdf4j.repository.base.AbstractRepository
 
 import java.io.{File, FileOutputStream}
+import java.net.URI
 import scala.io.Source
 
 object Operator {
@@ -54,6 +55,10 @@ object Operator {
           case (Operation.OpTypes.SPARQL_QUERY, _) =>
             throw new IllegalArgumentException(
               s"Repository must be provided where ${Operation.OpTypes.SPARQL_QUERY} operations exist.")
+          case (Operation.OpTypes.SPARQL_TO_QUADS, Some(repo)) => validateAndPerformSparqlToQuads(op, repo)
+          case (Operation.OpTypes.SPARQL_TO_QUADS, _) =>
+            throw new IllegalArgumentException(
+              s"Repository must be provided where ${Operation.OpTypes.SPARQL_TO_QUADS} operations exist.")
 
           case _ => throw new IllegalArgumentException(s"Unmatched opType ${op.getOpType()}")
         }
@@ -80,6 +85,24 @@ object Operator {
       println(s"Performing ${op.getOpType()} operation with arguments ${op.getArguments().mkString(", ")}")
     }
   }
+
+  private def validateAndPerformSparqlToQuads(operation: FileOperation, repo: AbstractRepository) = {
+    validateNumArgsForOp(operation, Operation.OpTypes.SPARQL_TO_QUADS, 2)
+    val args = operation.getArguments()
+
+    val graphUriSparqlQuery: String = getSparqlQueryFromFile(operation.getArguments().apply(0))
+    val outputFile = new File(args.apply(1))
+
+    val graphUri = RdfRepo.querySingleStringValue(repo, graphUriSparqlQuery)
+
+    val quadsRepo = RdfRepo.getRepoForFile(new File(operation.getFile()), Some(new URI(graphUri)))
+    try {
+      RdfRepo.writeToOutputFile(quadsRepo, outputFile)
+    } finally {
+      RdfRepo.disposeOfRepo(quadsRepo)
+    }
+  }
+
 
   private def validateAndPerformSparqlQueryOp(operation: FileOperation, repo: AbstractRepository) = {
     validateNumArgsForOp(operation, Operation.OpTypes.SPARQL_QUERY, 2)

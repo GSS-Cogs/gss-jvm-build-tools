@@ -1,5 +1,6 @@
 package uk.gsscogs.build
 
+import org.eclipse.rdf4j.query.{BindingSet, TupleQueryResult}
 import org.eclipse.rdf4j.query.resultio.sparqljson.SPARQLResultsJSONWriter
 import org.eclipse.rdf4j.repository.base.AbstractRepository
 
@@ -9,14 +10,23 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
 
+import java.net.URI
+
 object RdfRepo {
-  def getRepoForFile(file: File): AbstractRepository = {
+  def getRepoForFile(file: File, graphUri: Option[URI] = None): AbstractRepository = {
     val db = new SailRepository(new MemoryStore)
     db.init()
     try {
       val conn = db.getConnection
+      val f = conn.getValueFactory
       try {
-        conn.add(file)
+        graphUri match {
+          case Some(uri) => {
+            val graphIri = f.createIRI(uri.toString)
+            conn.add(file, graphIri)
+          }
+          case None => conn.add(file)
+        }
       } finally {
         conn.close()
       }
@@ -56,6 +66,39 @@ object RdfRepo {
       conn
         .prepareTupleQuery(query)
         .evaluate(new SPARQLResultsJSONWriter(jsonOutputStream))
+    } finally {
+      conn.close()
+    }
+  }
+
+  private def getSingleBindingSet(queryResult: TupleQueryResult): BindingSet = {
+    if (queryResult.hasNext) {
+      val firstBindingSet = queryResult.next()
+      if (queryResult.hasNext) {
+        throw new UnsupportedOperationException(s"Found >1 results for SPARQL query when 1 was expected.")
+      }
+      return firstBindingSet
+    } else {
+      throw new UnsupportedOperationException(s"Found 0 results for SPARQL query when 1 was expected.")
+    }
+  }
+
+  def querySingleStringValue(repo: AbstractRepository, query: String): String = {
+    val conn = repo.getConnection
+    try {
+      val results = conn
+        .prepareTupleQuery(query)
+        .evaluate()
+
+      val singleResult = getSingleBindingSet(results)
+
+      val bindingNames = singleResult.getBindingNames()
+      if (bindingNames.size() != 1){
+        throw new UnsupportedOperationException(s"Found ${bindingNames.size()} bindings on SPARQL query when 1 was expected.")
+      }
+      val bindingName = bindingNames.iterator().next()
+
+      return singleResult.getValue(bindingName).stringValue()
     } finally {
       conn.close()
     }

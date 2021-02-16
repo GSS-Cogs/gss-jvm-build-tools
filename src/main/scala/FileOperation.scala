@@ -35,5 +35,6 @@ object Operation {
     val CSV_2_RDF: String = "CSV2RDF"
     val SPARQL_UPDATE: String = "SPARQL Update"
     val SPARQL_QUERY: String = "SPARQL Query"
+    val SPARQL_TO_QUADS: String = "SPARQL to Quads"
   }
 }
