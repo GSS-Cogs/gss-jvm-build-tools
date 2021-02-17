@@ -65,7 +65,12 @@ object Operator {
       }
     }
 
-    if (operations.exists(op => op.getOpType() == Operation.OpTypes.SPARQL_UPDATE || op.getOpType() == Operation.OpTypes.SPARQL_QUERY)) {
+    if (operations.exists(op =>
+          op.getOpType() == Operation.OpTypes.SPARQL_UPDATE
+            || op.getOpType() == Operation.OpTypes.SPARQL_QUERY
+            || op.getOpType() == Operation.OpTypes.SPARQL_TO_QUADS
+        )
+    ) {
       // Keep repo in-memory until all SPARQL update ops completed.
       val repo = RdfRepo.getRepoForFile(file)
       try {
