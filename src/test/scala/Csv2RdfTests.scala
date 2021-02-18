@@ -4,6 +4,7 @@ import org.scalatest.FunSuite
 
 import java.io.File
 import java.nio.file.{Files, Paths}
+import scala.io.Source
 
 class Csv2RdfTests extends FunSuite {
   val tempDir = Files.createTempDirectory("csv2rdf-unit-tests").toFile
