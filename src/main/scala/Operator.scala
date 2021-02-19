@@ -100,7 +100,11 @@ object Operator {
 
     val graphUri = RdfRepo.querySingleStringValue(repo, graphUriSparqlQuery)
 
-    val quadsRepo = RdfRepo.getRepoForFile(new File(operation.getFile()), Some(new URI(graphUri)))
+    val triplesFile = new File(operation.getFile())
+    // Make sure that we've written any changes out to the triples file before reading it in to the quads repo.
+    RdfRepo.writeToOutputFile(repo, triplesFile)
+
+    val quadsRepo = RdfRepo.getRepoForFile(triplesFile, Some(new URI(graphUri)))
     try {
       RdfRepo.writeToOutputFile(quadsRepo, outputFile)
     } finally {

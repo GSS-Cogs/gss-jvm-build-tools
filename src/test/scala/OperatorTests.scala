@@ -24,9 +24,10 @@ class OperatorTests extends FunSuite {
     val fileOperations = objectMapper.readValue(configJson, new TypeReference[Array[FileOperation]] {})
     Operator.performOperations(fileOperations, true)
 
-    val outputFile = Paths.get(tempDir.getPath, "test.out.ttl").toFile
-    val outputRepo = RdfRepo.getRepoForFile(outputFile)
-    val rdfHasBeenCreatedAndAugmented = RdfRepo.ask(outputRepo,
+    val quadsOutput = Paths.get(tempDir.getPath, "test.out.nq").toFile
+    val quadsRepo = RdfRepo.getRepoForFile(quadsOutput)
+
+    val rdfHasBeenCreatedAndAugmented = RdfRepo.ask(quadsRepo,
       """
         |ASK
         |WHERE {
@@ -65,8 +66,6 @@ class OperatorTests extends FunSuite {
 
     assert(graphUri == "http://some-uri/#scheme/stuff")
 
-    val quadsOutput = Paths.get(tempDir.getPath, "test.out.nq").toFile
-    val quadsRepo = RdfRepo.getRepoForFile(quadsOutput)
     try {
       val triplesExistWithoutCorrectGraphName = RdfRepo.ask(quadsRepo,
         """
