@@ -8,7 +8,7 @@ idePackagePrefix := Some("uk.gsscogs.build")
 
 resolvers += "Clojars" at "https://repo.clojars.org"
 
-libraryDependencies += "swirrl" % "csv2rdf" % "0.4.4"
+libraryDependencies += "swirrl" % "csv2rdf" % "0.4.6"
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
