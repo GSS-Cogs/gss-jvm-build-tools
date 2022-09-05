@@ -6,7 +6,7 @@ import org.eclipse.rdf4j.repository.base.AbstractRepository
 
 import java.io.{File, FileOutputStream, OutputStream}
 import org.eclipse.rdf4j.repository.sail.SailRepository
-import org.eclipse.rdf4j.sail.memory.MemoryStore
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore
 import org.eclipse.rdf4j.rio.RDFFormat
 import org.eclipse.rdf4j.rio.Rio
 
@@ -14,7 +14,17 @@ import java.net.URI
 
 object RdfRepo {
   def getRepoForFile(file: File, graphUri: Option[URI] = None): AbstractRepository = {
-    val db = new SailRepository(new MemoryStore)
+    /**
+     * "The NativeStore saves data to disk in a binary format which is optimized for compact storage and fast retrieval.
+     * If there is sufficient physical memory, the Native store will act like the MemoryStore on most operating systems
+     * because the read/write commands will be cached by the OS.
+     *
+     * It is therefore an efficient, scalable and fast solution for datasets with up to 100 million triples
+     * (and probably even more)."
+     *
+     * https://rdf4j.org/documentation/programming/repository/#native-rdf-repository
+     */
+    val db = new SailRepository(new NativeStore)
     db.init()
     try {
       val conn = db.getConnection
