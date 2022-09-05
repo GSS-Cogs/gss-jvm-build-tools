@@ -1,4 +1,4 @@
-FROM mozilla/sbt as build
+FROM mozilla/sbt:8u232_1.4.9 as build
 COPY . /workspace
 WORKDIR /workspace
 RUN sbt universal:packageZipTarball
